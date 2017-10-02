@@ -5,57 +5,40 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace calculator
 {
-    public partial class frmMain : Form
+    public partial class FrmMain : Form
     {
-        public frmMain()
+        public FrmMain()
         {
             InitializeComponent();
         }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        bool istypingnumber = false;
-        enum PhepToan { Cong, Tru, Nhan, Chia };
+        bool isTypingNumber = false;
+        enum PhepToan { Cong, Tru, Nhan, Chia, PhanTram };
         PhepToan pheptoan;
 
         double nho;
 
-        private void Nhapso(object sender, EventArgs e)
+        private void NhapSo(object sender, EventArgs e)
         {
-            Button btn = (Button)sender;
-            Nhapso(btn.Text);
+            string so = ((Button)sender).Text;
+            NhapSo(so);
         }
-
-        private void Nhapso(string so)
-
-
+        private void NhapSo(string so)
         {
-            if (istypingnumber)
-                lbldisplay.Text = lbldisplay.Text + so;
+            if (isTypingNumber)
+                lblDisplay.Text = lblDisplay.Text + so;
             else
             {
-                lbldisplay.Text = so;
-                istypingnumber = true;
+                lblDisplay.Text = so;
+                isTypingNumber = true;
             }
         }
-
         private void NhapPhepToan(object sender, EventArgs e)
         {
             TinhKetQua();
-
             Button btn = (Button)sender;
             switch (btn.Text)
             {
@@ -63,44 +46,84 @@ namespace calculator
                 case "-": pheptoan = PhepToan.Tru; break;
                 case "*": pheptoan = PhepToan.Nhan; break;
                 case "/": pheptoan = PhepToan.Chia; break;
+                case "%": pheptoan = PhepToan.PhanTram; break;
             }
 
-            nho = double.Parse(lbldisplay.Text);
-            istypingnumber = false;
-
+            nho = double.Parse(lblDisplay.Text);
+            isTypingNumber = false;
 
         }
 
         private void TinhKetQua()
         {
-            //tinh toan dua tren : nho, pheptoan, lbldisplay.Text
-            double tam = double.Parse(lbldisplay.Text);
-            double ketqua = 0.0;
+            // tinh toan dua tren: nho, pheptoan, lblDisplay.Text
+            double tam = double.Parse(lblDisplay.Text);
+            double Ketqua = 0.0;
             switch (pheptoan)
             {
-                case PhepToan.Cong: ketqua = nho + tam; break;
-                case PhepToan.Tru: ketqua = nho - tam; break;
-                case PhepToan.Nhan: ketqua = nho * tam; break;
-                case PhepToan.Chia: ketqua = nho / tam; break;
+                case PhepToan.Cong: Ketqua = nho + tam; break;
+                case PhepToan.Tru: Ketqua = nho - tam; break;
+                case PhepToan.Nhan: Ketqua = nho * tam; break;
+                case PhepToan.Chia: Ketqua = nho / tam; break;
+                case PhepToan.PhanTram: Ketqua = 100 / tam; break;
             }
+            // gan ket qua tinh duoc len lblDisplay
+            lblDisplay.Text = Ketqua.ToString();
 
-            // gan ket qua tinh duoc len lbldisplay
-            lbldisplay.Text = ketqua.ToString();
         }
 
-        private void btncan_Click(object sender, EventArgs e)
+        private void btnBang_Click(object sender, EventArgs e)
         {
             TinhKetQua();
-            istypingnumber = false;
+            isTypingNumber = false;
         }
 
-        private void btnbang_Click(object sender, EventArgs e)
+        private void btnDoiDau_Click(object sender, EventArgs e)
         {
-            TinhKetQua();
-            istypingnumber = false;
+            if (lblDisplay.Text.Contains("-")) //Kiểm tra có dấu - chưa
+            {
+                lblDisplay.Text = lblDisplay.Text.Remove(0, 1);
+            }
+            else
+                lblDisplay.Text = "-" + lblDisplay.Text;
         }
 
-        private void frmMain_KeyPress(object sender, KeyPressEventArgs e)
+        private void btnThapPhan_Click(object sender, EventArgs e)
+        {
+            if (lblDisplay.Text.Contains("."))
+            {
+                return;
+            }
+            lblDisplay.Text += btnThapPhan.Text;
+        }
+
+        private void btnPhanTram_Click(object sender, EventArgs e)
+        {
+            double tam = 100 * double.Parse(lblDisplay.Text);
+            lblDisplay.Text = tam.ToString();
+            isTypingNumber = false;
+        }
+
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            if (lblDisplay.Text.Length > 0)
+                lblDisplay.Text = lblDisplay.Text.Remove(lblDisplay.Text.Length - 1, 1);
+        }
+
+        private void btnCanBac2_Click(object sender, EventArgs e)
+        {
+            double tam = Math.Sqrt(double.Parse(lblDisplay.Text));
+            lblDisplay.Text = tam.ToString();
+            isTypingNumber = false;
+        }
+
+        private void btnNho_Click(object sender, EventArgs e)
+        {
+            nho = 0;
+            lblDisplay.ResetText();
+        }
+
+        private void FrmMain_KeyPress(object sender, KeyPressEventArgs e)
         {
             switch (e.KeyChar)
             {
@@ -114,26 +137,39 @@ namespace calculator
                 case '7':
                 case '8':
                 case '9':
-                    Nhapso("" + e.KeyChar);
+                    NhapSo("" + e.KeyChar);
                     break;
             }
-
-
-
         }
-        private void btnCan_Click(object sender, EventArgs e)
+        private void BtnThapPhan_Click(object sender, EventArgs e)
         {
-            lbldisplay.Text = (Math.Sqrt(Double.Parse(lbldisplay.Text))).ToString();
+
+            if (lblDisplay.Text.Contains("."))
+            {
+                if (lblDisplay.Text == "0.")
+                {
+                    lblDisplay.Text = "";
+                    NhapSo("0.");
+                }
+                return;
+            }
+
+            lblDisplay.Text += ".";
         }
 
-        private void btnDoiDau_Click(object sender, EventArgs e)
+        private void Nhapso(string so)
         {
-            lbldisplay.Text = (-1 * (double.Parse(lbldisplay.Text))).ToString();
-        }
-
-        private void btnPhanTram_Click(object sender, EventArgs e)
-        {
-            lbldisplay.Text = ((double.Parse(lbldisplay.Text) / 100)).ToString();
+            if (isTypingNumber)
+            {
+                if (lblDisplay.Text == "0")
+                    lblDisplay.Text = "";
+                lblDisplay.Text += so;
+            }
+            else
+            {
+                lblDisplay.Text = so;
+                isTypingNumber = true;
+            }
         }
     }
 }
